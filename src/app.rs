@@ -13,6 +13,10 @@ pub struct TemplateApp {
     sha256: String,
     #[serde(skip)]
     hash_input: String,
+    #[serde(skip)]
+    utf_string_conversion_input: String,
+    #[serde(skip)]
+    utf_string_conversion_output: String,
 }
 
 impl Default for TemplateApp {
@@ -20,9 +24,11 @@ impl Default for TemplateApp {
         Self {
             // Example stuff:
             label: "Hello World!".to_owned(),
-            sha1: "".to_string(),
-            sha256: "".to_string(),
-            hash_input: "".to_string(),
+            sha1: "".to_owned(),
+            sha256: "".to_owned(),
+            hash_input: "".to_owned(),
+            utf_string_conversion_input: "".to_owned(),
+            utf_string_conversion_output: "".to_owned(),
         }
     }
 }
@@ -92,6 +98,7 @@ impl eframe::App for TemplateApp {
 
         egui::CentralPanel::default().show(ctx, |ui| {
             // The central panel the region left after adding TopPanel's and SidePanel's
+            // Hashes
             ui.heading("Hashes");
             ui.separator();
             ui.label("Enter text to generate SHA1 and SHA256 hashes.");
@@ -113,6 +120,24 @@ impl eframe::App for TemplateApp {
             if ui.button("Generate").clicked() {
                 (self.sha1, self.sha256) = crate::computations::generate_assorted_hashes(&self.hash_input);
             }
+            ui.add_space(32.0);
+            // UTF-8 <> String
+            ui.heading("UTF-8 & String Conversion");
+            ui.separator();
+            ui.label("Enter text to convert to/from UTF-8 and String.");
+            ui.text_edit_multiline(&mut self.utf_string_conversion_input);
+            ui.label("Result:");
+            ui.text_edit_multiline(&mut self.utf_string_conversion_output);
+            ui.add_space(16.0);
+            ui.horizontal(|ui| {
+                if ui.button("UTF-8 to String").clicked() {
+                    self.utf_string_conversion_output = crate::computations::utf8_escaped_to_string(&self.utf_string_conversion_input);
+                }
+                if ui.button("String to UTF-8").clicked() {
+                    self.utf_string_conversion_output = crate::computations::string_to_utf8_escaped(&self.utf_string_conversion_input);
+                }
+            });
+
 
             ui.with_layout(egui::Layout::bottom_up(egui::Align::LEFT), |ui| {
                 powered_by_egui_and_eframe(ui);
